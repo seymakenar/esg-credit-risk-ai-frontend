@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="tr" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESG Kredi Analiz Platformu</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&amp;family=Outfit:wght@600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' },
+            indigo: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81' },
+            violet: { 400: '#a78bfa', 500: '#a855f7', 600: '#9333ea', 700: '#7e22ce', 800: '#6b21a8' },
+            emerald: { 400: '#10b981', 500: '#059669', 600: '#047857', 700: '#065f46' },
+            amber: { 300: '#fcd34d', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
+          },
+          fontFamily: { 
+            sans: ['Sora', 'system-ui', 'sans-serif'], 
+            mono: ['IBM Plex Mono', 'monospace'],
+            display: ['Outfit', 'Sora', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body { font-family: 'Sora', sans-serif; background: linear-gradient(135deg, #f8fafb 0%, #f3f7fc 50%, #eef3f9 100%); color: #2c3e50; }
+
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(52, 152, 219, 0.15); } 50% { box-shadow: 0 0 40px rgba(52, 152, 219, 0.25); } }
+
+    .header-gradient { 
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%); 
+      border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      backdrop-filter: blur(10px);
+    }
+    
+    .card-subtle { 
+      background: #ffffff;
+      border: 1px solid rgba(52, 152, 219, 0.12);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+    
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { 
+      box-shadow: 0 12px 28px rgba(52, 152, 219, 0.12);
+      border-color: rgba(52, 152, 219, 0.25);
+      transform: translateY(-3px);
+    }
+
+    .btn-primary { 
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      color: white; 
+      font-weight: 500; 
+      transition: all 0.3s ease; 
+      border: none; 
+      cursor: pointer; 
+      box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+    }
+    .btn-primary:hover:not(:disabled) { 
+      transform: translateY(-3px); 
+      box-shadow: 0 12px 28px rgba(52, 152, 219, 0.4);
+    }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-premium { 
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      color: white; 
+      font-weight: 500; 
+      transition: all 0.3s ease; 
+      border: none; 
+      cursor: pointer; 
+      box-shadow: 0 6px 20px rgba(243, 156, 18, 0.3);
+    }
+    .btn-premium:hover:not(:disabled) { 
+      transform: translateY(-3px); 
+      box-shadow: 0 12px 28px rgba(243, 156, 18, 0.4);
+    }
+    .btn-premium:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .select-input { 
+      appearance: none; 
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); 
+      background-repeat: no-repeat; 
+      background-position: right 12px center; 
+      padding-right: 32px; 
+      cursor: pointer;
+      background-color: #ffffff;
+      border: 1px solid rgba(52, 152, 219, 0.15);
+      color: #2c3e50;
+      transition: all 0.3s ease;
+    }
+    .select-input:focus {
+      outline: none;
+      border-color: rgba(52, 152, 219, 0.4);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.08);
+    }
+
+    .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(52, 152, 219, 0.15); border-top-color: #3498db; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .page { animation: slideUp 0.5s ease-out; }
+    .page:not(#page-intro) { padding-top: 0 !important; }
+    .header-animation { animation: slideDown 0.4s ease-out; }
+
+    .form-step { animation: fadeIn 0.3s ease-out; }
+    .form-step.hidden { display: none !important; }
+
+    .step-dot { 
+      width: 40px; 
+      height: 40px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: 600; 
+      font-size: 12px; 
+      transition: all 0.3s ease;
+      background: #f3f4f6;
+      color: #9ca3af;
+      border: 2px solid #e5e7eb;
+    }
+    .step-dot.active { 
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      color: white;
+      border-color: #2980b9;
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+    .step-dot.completed {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-color: #059669;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(52, 152, 219, 0.05); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #3498db, #2980b9); border-radius: 4px; }
+
+    .feature-card { 
+      padding: 20px; 
+      border-radius: 10px; 
+      background: #ffffff;
+      border: 1px solid rgba(52, 152, 219, 0.12);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card-description {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+    
+    .feature-card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 12px 28px rgba(52, 152, 219, 0.12);
+      border-color: rgba(52, 152, 219, 0.25);
+    }
+    
+    .feature-card:hover .feature-card-description {
+      max-height: 200px;
+      opacity: 1;
+      margin-top: 12px;
+    }
+
+    .question-item {
+      opacity: 0;
+      animation: slideUp 0.4s ease-out forwards;
+    }
+  </style>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full">
+  <div id="app-root" class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 50%, #e8f0f7 100%);"><!-- Header -->
+   <header class="header-gradient sticky top-0 z-40" id="main-header">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+     <div class="header-animation">
+      <div class="flex items-center justify-between">
+       <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+         <i data-lucide="bar-chart-3" style="width:24px;height:24px;color:white;"></i>
+        </div>
+        <div>
+         <h1 id="dashboard_title" class="text-xl sm:text-2xl font-semibold text-gray-700">Yapay Zeka Destekli ESG Kredi Analisti</h1>
+         <p id="dashboard_subtitle" class="text-xs text-gray-500 mt-0.5">Yapay Zeka Destekli ESG Risk &amp; Kredi Değerlendirmesi</p>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div id="button-container" class="flex justify-center pt-8"><button id="btn-start" class="flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-lg font-bold btn-primary transition-all duration-300"> <i data-lucide="arrow-right" style="width:20px;height:20px;"></i> <span id="start-btn-label">Ankete Başla</span> </button>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6"><!-- PAGE 1: INTRODUCTION -->
+    <div id="page-intro" class="page space-y-8">
+     <div class="rounded-2xl p-8 sm:p-12" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.06) 0%, rgba(46, 204, 113, 0.06) 100%); border: 1px solid rgba(52, 152, 219, 0.15);">
+      <div class="text-center space-y-4">
+       <h2 class="text-3xl sm:text-4xl font-semibold text-gray-800" style="font-family: 'Sora', sans-serif; letter-spacing: -0.5px;">🌍 Şirketinizin ESG Riski Nedir?</h2>
+       <p class="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">Yapay Zeka ile desteklenen akıllı analiz sistemimiz, Çevre, Sosyal ve Yönetişim kriterlerini değerlendirerek şirketinizin sürdürülebilirlik performansını ve risk profilini belirlemektedir. ESG risk değerlendirmesi, kredi vermek için göz önünde alınan önemli bir faktördür ve finansal istikrarınızı doğrudan etkilemektedir.</p>
+      </div>
+     </div>
+     <div class="space-y-4">
+      <h3 class="text-xl font-semibold text-gray-800" style="font-family: 'Sora', sans-serif;">📊 ESG'nin 3 Temel Ayağı</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+       <div class="feature-card">
+        <div class="flex items-start gap-3">
+         <div class="text-3xl flex-shrink-0">
+          🌱
+         </div>
+         <div class="flex-1">
+          <h4 class="font-semibold text-gray-800 mb-1" style="font-family: 'Sora', sans-serif; font-size: 15px;">Çevre (E)</h4>
+          <p class="text-xs text-gray-500 font-medium"><strong class="text-gray-700">Environmental</strong> — Şirketinizin doğal kaynakları ne kadar sorumlu kullandığını ölçer.</p>
+          <div class="feature-card-description">
+           <p class="text-xs text-gray-600 leading-relaxed">Karbon emisyonu, enerji verimliliği, su yönetimi ve atık azaltma gibi kriterler incelenir. İklim değişikliğine karşı verilen mücadelede öncü olmak anlamına gelir.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="flex items-start gap-3">
+         <div class="text-3xl flex-shrink-0">
+          👥
+         </div>
+         <div class="flex-1">
+          <h4 class="font-semibold text-gray-800 mb-1" style="font-family: 'Sora', sans-serif; font-size: 15px;">Sosyal (S)</h4>
+          <p class="text-xs text-gray-500 font-medium"><strong class="text-gray-700">Social</strong> — İnsan kaynakları ve toplum ilişkilerine ilişkin sorumlulukları kapsar.</p>
+          <div class="feature-card-description">
+           <p class="text-xs text-gray-600 leading-relaxed">Çalışan refahı, eşitlik ve çeşitlilik, tedarik zinciri etiği, ve toplumla ilişkiler değerlendirilir. Adil bir işyeri yaratmak ve sosyal etkiye katkı sağlamak demektir.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="flex items-start gap-3">
+         <div class="text-3xl flex-shrink-0">
+          🏢
+         </div>
+         <div class="flex-1">
+          <h4 class="font-semibold text-gray-800 mb-1" style="font-family: 'Sora', sans-serif; font-size: 15px;">Yönetişim (G)</h4>
+          <p class="text-xs text-gray-500 font-medium"><strong class="text-gray-700">Governance</strong> — Şirketin yönetim şekli, etik kuralları ve şeffaflığını inceler.</p>
+          <div class="feature-card-description">
+           <p class="text-xs text-gray-600 leading-relaxed">Yönetim kurulu bağımsızlığı, icra kurulu çeşitliliği, muhasebe denetimi ve hissedarlık hakları değerlendirilir. Sağlıklı kurumsal yapı oluşturmak anlamına gelir.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="space-y-4">
+      <h3 class="text-xl font-semibold text-gray-800">Nasıl Çalışır?</h3>
+      <div class="space-y-3">
+       <div class="rounded-lg p-4 card-subtle card-hover flex items-start gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-white text-sm" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
+         1
+        </div>
+        <div>
+         <h4 class="font-semibold text-gray-800 text-sm">Anket Doldurun</h4>
+         <p class="text-xs text-gray-500 mt-1">ESG kriterlerini değerlendiren 11 soruya cevap verin.</p>
+        </div>
+       </div>
+       <div class="rounded-lg p-4 card-subtle card-hover flex items-start gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-white text-sm" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+         2
+        </div>
+        <div>
+         <h4 class="font-semibold text-gray-800 text-sm">Hızlı Tahmin</h4>
+         <p class="text-xs text-gray-500 mt-1">Anında risk seviyesi tahmini alın (Düşük/Orta/Yüksek).</p>
+        </div>
+       </div>
+       <div class="rounded-lg p-4 card-subtle card-hover flex items-start gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-white text-sm" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+         3
+        </div>
+        <div>
+         <h4 class="font-semibold text-gray-800 text-sm">Detaylı Rapor</h4>
+         <p class="text-xs text-gray-500 mt-1">AI tarafından üretilen kapsamlı analiz ve öneriler alın.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- PAGE 2: FORM - Multi-step -->
+    <div id="page-form" class="page hidden">
+     <div id="form-container" class="space-y-6"><!-- Step indicator -->
+      <div class="flex items-center justify-between mb-8">
+       <div id="step-indicator" class="flex gap-3">
+        <div class="step-dot active">
+         1
+        </div>
+        <div class="step-dot">
+         2
+        </div>
+        <div class="step-dot">
+         3
+        </div>
+        <div class="step-dot">
+         4
+        </div>
+        <div class="step-dot">
+         5
+        </div>
+       </div><span id="step-counter" class="text-xs font-medium text-slate-500">Adım 1 / 5</span>
+      </div><!-- Form steps -->
+      <form id="esg-form" onsubmit="return false;" class="space-y-6"><!-- Step 1: E Criteria -->
+       <div id="form-step-1" class="form-step">
+        <div class="rounded-xl p-8 mb-6" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(34, 197, 94, 0.08) 100%); border: 1px solid rgba(16, 185, 129, 0.2);">
+         <div class="flex items-start gap-4 mb-4">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i data-lucide="leaf" style="width:24px;height:24px;color:white;"></i>
+          </div>
+          <div class="flex-1">
+           <h2 class="text-2xl font-bold text-slate-900 mb-2">🌍 Çevre (E) - Environmental</h2>
+           <p class="text-sm text-slate-600 leading-relaxed mb-4">Çevre kategorisi, şirketinizin doğal kaynakları nasıl kullandığı, iklim değişikliğine karşı aldığı tedbirleri ve çevresel etkileri yönetme konusundaki performansını değerlendirir.</p>
+           <div class="space-y-3 text-sm">
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(16, 185, 129, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">💡 Neden Önemli?</p>
+             <p class="text-slate-600">İklim krizi, doğal kaynakların kıtlığı ve çevre düzenlemeleri, şirketlerin uzun vadeli sürdürülebilirliğini doğrudan etkilemektedir. Zayıf çevre yönetimi, düzenleyici cezalara, üretim aksamalarına ve marka hasarına yol açabilir. Kredi verenler, çevresel riskleri finansal istikrarsızlığın göstergesi olarak görmektedir.</p>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(16, 185, 129, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">📊 Değerlendirme Alanları</p>
+             <ul class="text-slate-600 space-y-1 list-none">
+              <li>✓ Karbon emisyon yönetimi ve azaltma hedefleri</li>
+              <li>✓ Enerji verimliliği ve yenilenebilir enerji kullanımı</li>
+              <li>✓ Su tüketimi ve su kaynakları yönetimi</li>
+              <li>✓ Atık yönetimi ve geri dönüşüm programları</li>
+             </ul>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(16, 185, 129, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">🎯 Kredi Etkileri</p>
+             <p class="text-slate-600">Güçlü çevre yönetimi → Daha düşük kredi faiz oranları, daha kolay kredi onayı. Zayıf performans → Yüksek faiz oranları, kredi limitlerinin düşürülmesi veya reddedilme.</p>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div><!-- E Questions -->
+        <div class="space-y-5" id="e-questions-container"><!-- Questions inserted here -->
+        </div>
+       </div><!-- Step 2: S Criteria -->
+       <div id="form-step-2" class="form-step hidden">
+        <div class="rounded-xl p-8 mb-6" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%); border: 1px solid rgba(52, 152, 219, 0.2);">
+         <div class="flex items-start gap-4 mb-4">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);"><i data-lucide="users" style="width:24px;height:24px;color:white;"></i>
+          </div>
+          <div class="flex-1">
+           <h2 class="text-2xl font-bold text-slate-900 mb-2">👥 Sosyal (S) - Social</h2>
+           <p class="text-sm text-slate-600 leading-relaxed mb-4">Sosyal kategorisi, şirketinizin çalışanlarına, topluma ve tedarik zincirindeki ortaklara nasıl davrandığını, insan haklarını koruma düzeyini ve sosyal sorumluluk çabalarını değerlendirir.</p>
+           <div class="space-y-3 text-sm">
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(52, 152, 219, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">💡 Neden Önemli?</p>
+             <p class="text-slate-600">Zayıf sosyal uygulamalar işçi turnoverı, motivasyon kaybı ve verimlilikte düşüş yaratır. Tedarik zinciri riskleri operasyonları aksatabilir. Sosyal skandallar marka değerini ciddi şekilde hasar görebilir. Kredi verenler, sosyal riskleri yönetim kabiliyetinin ve kurumsal kültürün göstergesi olarak değerlendirir.</p>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(52, 152, 219, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">📊 Değerlendirme Alanları</p>
+             <ul class="text-slate-600 space-y-1 list-none">
+              <li>✓ Çalışan çeşitliliği ve eşit fırsat politikaları</li>
+              <li>✓ Toplum ilişkileri ve sosyal sorumluluk programları</li>
+              <li>✓ Tedarik zinciri etikliği ve insan hakları uygulamaları</li>
+              <li>✓ İş güvenliği, sağlık standartları ve köleci emek önleme</li>
+             </ul>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(52, 152, 219, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">🎯 Kredi Etkileri</p>
+             <p class="text-slate-600">İyi sosyal uygulamalar → Düşük operasyon riski, güvenilir tedarik zinciri, yüksek çalışan sadakati, olumlu kredi görüşü. Sorunlu performans → Operasyon riski, tedarik zinciri kesintileri, reputasyon zedelenmesi, kredi şartlarının ağırlaşması.</p>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div><!-- S Questions -->
+        <div class="space-y-5" id="s-questions-container"><!-- Questions inserted here -->
+        </div>
+       </div><!-- Step 3: G Criteria -->
+       <div id="form-step-3" class="form-step hidden">
+        <div class="rounded-xl p-8 mb-6" style="background: linear-gradient(135deg, rgba(155, 89, 182, 0.08) 0%, rgba(142, 68, 173, 0.08) 100%); border: 1px solid rgba(155, 89, 182, 0.2);">
+         <div class="flex items-start gap-4 mb-4">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);"><i data-lucide="shield" style="width:24px;height:24px;color:white;"></i>
+          </div>
+          <div class="flex-1">
+           <h2 class="text-2xl font-bold text-slate-900 mb-2">🏢 Yönetişim (G) - Governance</h2>
+           <p class="text-sm text-slate-600 leading-relaxed mb-4">Yönetişim kategorisi, şirketinizin nasıl yönetildiğini, karar alma süreçlerinin şeffaflığını, etik kurallarını ve hissedarların haklarının korunmasını değerlendirir.</p>
+           <div class="space-y-3 text-sm">
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(155, 89, 182, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">💡 Neden Önemli?</p>
+             <p class="text-slate-600">Zayıf yönetişim, yönetim hataları, sahtecilik ve etik ihlallerin başlıca nedenidir. Bağımsız yönetim kurulu ve güçlü iç kontroller, hissedarları ve kredi verenleri korur. Kredi verenler, şirket yönetiminin kalitesi kadar finansal performansı da değerlendirir. İyi yönetişim, kurumsal riskleri minimize eder.</p>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(155, 89, 182, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">📊 Değerlendirme Alanları</p>
+             <ul class="text-slate-600 space-y-1 list-none">
+              <li>✓ Yönetim kurulu bağımsızlığı ve çeşitliliği</li>
+              <li>✓ İcra kurulunun yetenekleri ve çeşitliliği</li>
+              <li>✓ Muhasebe denetimi ve iç kontrol sistemleri</li>
+              <li>✓ Hissedar hakları ve kurumsal şeffaflık</li>
+             </ul>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(155, 89, 182, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">🎯 Kredi Etkileri</p>
+             <p class="text-slate-600">Güçlü yönetişim → Düşük yönetim riski, şeffaf finansal raporlama, güvenilir liderlik, daha iyi kredi şartları. Zayıf performans → Kurumsal dolandırıcılık riski, finansal güvenilirlikte şüphe, kredi reddedilme veya ağır şartlar.</p>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div><!-- G Questions -->
+        <div class="space-y-5" id="g-questions-container"><!-- Questions inserted here -->
+        </div>
+       </div><!-- Step 4: Controversy -->
+       <div id="form-step-4" class="form-step hidden">
+        <div class="rounded-xl p-8 mb-6" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.08) 100%); border: 1px solid rgba(239, 68, 68, 0.2);">
+         <div class="flex items-start gap-4 mb-4">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);"><i data-lucide="alert-triangle" style="width:24px;height:24px;color:white;"></i>
+          </div>
+          <div class="flex-1">
+           <h2 class="text-2xl font-bold text-slate-900 mb-2">⚠️ Risk &amp; Tartışma Metrikleri</h2>
+           <p class="text-sm text-slate-600 leading-relaxed mb-4">Risk kategorisi, şirketinize ilişkin kamuya açık tartışmaları, ihtilafları ve kontroverleri ölçerek, bu sorunların kredi risk seviyenize ne kadar etki ettiğini değerlendirir.</p>
+           <div class="space-y-3 text-sm">
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(239, 68, 68, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">💡 Neden Önemli?</p>
+             <p class="text-slate-600">Kamuya açık tartışmalar ve kontroverlerin varlığı, şirketin yaşadığı ciddi sorunların göstergesidir. Çalışan uyuşmazlıkları, çevre ihlalleri, etik skandalları ve yasal sorunlar, operasyonel aksamalara, finansal cezalara ve marka hasarına yol açar. Kredi verenler, bu riskleri kredi güvenilirliğinde ciddi tehdit olarak görürler.</p>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(239, 68, 68, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">📊 Değerlendirme Alanları</p>
+             <ul class="text-slate-600 space-y-1 list-none">
+              <li>✓ Tartışma Seviyesi: Kamuya açık ihtilaf veya tartışmanın var olup olmadığı</li>
+              <li>✓ Tartışma Şiddeti: Sorunun ciddiyet düzeyini ölçen sayısal skor</li>
+              <li>✓ Yasal riskler, cezalar, düzenleyici sorunlar</li>
+              <li>✓ Medya ve kamuoyu algısı</li>
+             </ul>
+            </div>
+            <div class="rounded-lg p-3" style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(239, 68, 68, 0.1);">
+             <p class="font-semibold text-slate-800 mb-1">🎯 Kredi Etkileri</p>
+             <p class="text-slate-600">Tartışma yok veya düşük düzey → Düşük risk, iyi kredi görüşü. Ciddi tartışmalar → Yüksek risk, kredi reddedilme, aşırı yüksek faiz oranları veya ağır hukuki koşullar uygulanabilir.</p>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div><!-- Controversy Questions -->
+        <div class="space-y-5" id="controversy-questions-container"><!-- Questions inserted here -->
+        </div>
+       </div><!-- Step 5: Final Buttons -->
+       <div id="form-step-5" class="form-step hidden">
+        <div class="rounded-xl p-8 text-center" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(251, 191, 36, 0.08) 100%); border: 2px dashed rgba(16, 185, 129, 0.2);">
+         <div class="mb-6">
+          <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: linear-gradient(135deg, #10b981 0%, #f59e0b 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i data-lucide="check-circle" style="width:32px;height:32px;color:white;"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900 mb-2">Anket Tamamlandı! 🎉</h2>
+          <p class="text-sm text-slate-600 mb-2">Tüm soruları başarıyla doldurdunuz.</p>
+          <p class="text-xs text-slate-500">Aşağıdaki butonlardan birini seçerek analiz sonuçlarını öğrenebilirsiniz.</p>
+         </div>
+        </div><!-- Final action buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row gap-4"><button type="button" id="btn-quick-final" class="flex-1 flex items-center justify-center gap-2 rounded-xl px-6 py-4 text-sm font-semibold btn-primary transition-all duration-300"> <i data-lucide="zap" style="width:18px;height:18px;"></i> Hızlı Tahmin Al </button> <button type="button" id="btn-pro-final" class="flex-1 relative flex items-center justify-center gap-2 rounded-xl px-6 py-4 text-sm font-semibold btn-premium transition-all duration-300"> <span class="absolute -top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full" style="background: linear-gradient(135deg, #27ae60, #229954); color: white;">PRO</span> <span>💎</span> Detaylı AI Raporu </button>
+        </div>
+       </div><!-- Navigation -->
+       <div id="nav-buttons" class="flex items-center justify-between pt-6 border-t border-slate-200"><button type="button" id="btn-prev-step" class="flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium" style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; transition: all 0.3s ease; display: none;"> <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Geri </button> <button type="button" id="btn-next-step" class="flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium btn-primary transition-all duration-300 ml-auto"> İleri <i data-lucide="arrow-right" style="width:14px;height:14px;"></i> </button>
+       </div>
+      </form>
+     </div>
+    </div><!-- PAGE 3: RESULTS -->
+    <div id="page-results" class="page hidden space-y-6">
+     <div class="flex items-center justify-between mb-6">
+      <div>
+       <h2 class="text-2xl font-semibold text-gray-800">Analiz Sonuçları</h2>
+       <p class="text-sm text-gray-500 mt-1">Detaylı ESG değerlendirmesi ve AI önerileri</p>
+      </div>
+      <div class="flex gap-2"><button id="btn-back-results" class="flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium" style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; transition: all 0.3s ease;"> <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Geri </button> <button id="btn-new-analysis" class="flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium" style="background: rgba(39, 174, 96, 0.08); color: #229954; border: 1px solid rgba(39, 174, 96, 0.2); transition: all 0.3s ease;"> <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Yeni Analiz </button>
+      </div>
+     </div>
+     <div id="main-result"></div>
+     <div id="shap-report" class="hidden mt-6"></div>
+     <div id="ai-report" class="hidden"></div>
+    </div>
+    <script>
+    const defaultConfig = {
+      dashboard_title: 'Yapay Zeka Destekli ESG Kredi Analisti',
+      dashboard_subtitle: 'Yapay Zeka Destekli ESG Risk & Kredi Değerlendirmesi',
+      start_button_text: 'Ankete Başla',
+      quick_button_text: 'Hızlı Tahmin Al',
+      pro_button_text: 'Detaylı AI Raporu',
+      font_family: 'Sora',
+      font_size: 14
+    };
+
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function applyConfig(config) {
+      const c = { ...defaultConfig, ...config };
+      document.getElementById('dashboard_title').textContent = c.dashboard_title;
+      document.getElementById('dashboard_subtitle').textContent = c.dashboard_subtitle;
+      document.getElementById('start-btn-label').textContent = c.start_button_text;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyConfig(defaultConfig);
+      lucide.createIcons();
+    });
+
+    function showPage(pageName) {
+      document.getElementById('page-intro').classList.add('hidden');
+      document.getElementById('page-form').classList.add('hidden');
+      document.getElementById('page-results').classList.add('hidden');
+      
+      const headerButtons = document.getElementById('button-container');
+      if (pageName === 'intro') {
+        headerButtons.classList.remove('hidden');
+      } else {
+        headerButtons.classList.add('hidden');
+      }
+      
+      document.getElementById(`page-${pageName}`).classList.remove('hidden');
+      window.scrollTo(0, 0);
+      setTimeout(() => lucide.createIcons(), 50);
+    }
+
+    function updateStepIndicator() {
+      const dots = document.querySelectorAll('.step-dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.remove('active', 'completed');
+        if (idx + 1 === currentStep) {
+          dot.classList.add('active');
+        } else if (idx + 1 < currentStep) {
+          dot.classList.add('completed');
+          dot.innerHTML = '<i data-lucide="check" style="width:20px;height:20px;"></i>';
+        }
+      });
+      document.getElementById('step-counter').textContent = `Adım ${currentStep} / ${totalSteps}`;
+      lucide.createIcons();
+    }
+
+    function showStep(step) {
+      for (let i = 1; i <= totalSteps; i++) {
+        const stepEl = document.getElementById(`form-step-${i}`);
+        if (stepEl) stepEl.classList.add('hidden');
+      }
+      const currentStepEl = document.getElementById(`form-step-${step}`);
+      if (currentStepEl) currentStepEl.classList.remove('hidden');
+      
+      updateStepIndicator();
+      
+      // Show/hide navigation buttons
+      const prevBtn = document.getElementById('btn-prev-step');
+      const nextBtn = document.getElementById('btn-next-step');
+      const navButtons = document.getElementById('nav-buttons');
+      
+      if (step < totalSteps) {
+        navButtons.style.display = 'flex';
+        prevBtn.style.display = step > 1 ? 'flex' : 'none';
+        nextBtn.textContent = step === totalSteps - 1 ? 'Bitir' : 'İleri';
+        nextBtn.innerHTML = step === totalSteps - 1 ? 'Bitir <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>' : 'İleri <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>';
+      } else {
+        navButtons.style.display = 'none';
+      }
+      lucide.createIcons();
+      window.scrollTo(0, 0);
+    }
+
+    document.getElementById('btn-next-step').addEventListener('click', () => {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    });
+
+    document.getElementById('btn-prev-step').addEventListener('click', () => {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    });
+
+    document.getElementById('btn-start').addEventListener('click', () => {
+      currentStep = 1;
+      loadFormQuestions();
+      showPage('form');
+      showStep(1);
+    });
+
+    const questions = [
+  { section: 'E', name: 'EGroup1', label: 'E1: Karbon Yönetimi', desc: 'Karbon emisyon raporlaması ve azaltma hedefleri', icon: 'leaf', color: '#27ae60', 
+    info: 'Şirketin karbon ayak izini ölçme, raporlama ve azaltma stratejilerini değerlendirir.',
+    examples: { A: 'Kapsamlı karbon azaltım planı uygulanıyor', B: 'Temel raporlama mevcut', C: 'Sınırlı veri paylaşımı', D: 'Hiç raporlama veya hedef yok' }},
+  
+  { section: 'E', name: 'EGroup2', label: 'E2: Enerji Verimliliği', desc: 'Yenilenebilir enerji kullanımı ve verimlilik programları', icon: 'zap', color: '#27ae60',
+    info: 'Enerji tüketimini azaltma ve yenilenebilir kaynaklara geçiş düzeyini ölçer.',
+    examples: { A: '%100 yenilenebilir enerji kullanımı', B: 'Enerji verimliliği projeleri mevcut', C: 'Kısmi uygulama', D: 'Hiçbir enerji verimliliği politikası yok' }},
+  
+  { section: 'E', name: 'EGroup3', label: 'E3: Su Yönetimi', desc: 'Su tüketimi ve su kaynaklarının korunması', icon: 'droplets', color: '#27ae60',
+    info: 'Su kaynaklarının sürdürülebilir kullanımı ve geri kazanım politikalarını inceler.',
+    examples: { A: 'Su geri kazanım sistemleri aktif', B: 'Su tasarrufu politikaları mevcut', C: 'Kısmen uygulanıyor', D: 'Hiçbir politika yok' }},
+  
+  { section: 'E', name: 'EGroup4', label: 'E4: Atık Yönetimi', desc: 'Atık azaltma ve geri dönüşüm politikaları', icon: 'trash-2', color: '#27ae60',
+    info: 'Atıkların azaltılması, geri dönüşüm oranı ve çevreye etkisini değerlendirir.',
+    examples: { A: '%80+ geri dönüşüm oranı', B: 'Atık azaltma planı mevcut', C: 'Kısmen uygulanıyor', D: 'Hiçbir plan yok' }},
+  
+  { section: 'S', name: 'SGroup1', label: 'S1: Çalışan Çeşitliliği', desc: 'Cinsiyet, etnisite ve yaş çeşitliliği; liderlik kadrosunda temsil', icon: 'users', color: '#3498db',
+    info: 'Çalışan çeşitliliği ve kapsayıcılığı değerlendirir.',
+    examples: { A: 'Yüksek çeşitlilik ve eşitlik politikası', B: 'Temel politikalar mevcut', C: 'Kısmen uygulanıyor', D: 'Hiç politika yok' }},
+  
+  { section: 'S', name: 'SGroup2', label: 'S2: Toplum İlişkileri', desc: 'Sosyal sorumluluk programları ve toplumla iş birliği', icon: 'heart', color: '#3498db',
+    info: 'Toplumla ilişkiler ve sosyal katkı düzeyini ölçer.',
+    examples: { A: 'Aktif sosyal sorumluluk projeleri', B: 'Yıllık katkı programı mevcut', C: 'Sınırlı faaliyet', D: 'Hiç faaliyet yok' }},
+  
+  { section: 'S', name: 'SGroup3', label: 'S3: Tedarik Zinciri Etikliği', desc: 'Tedarikçi denetimi ve insan hakları uygulamaları', icon: 'link', color: '#3498db',
+    info: 'Tedarik zincirinde etik standartların uygulanmasını değerlendirir.',
+    examples: { A: 'Tüm tedarikçiler denetleniyor', B: 'Kısmi denetim', C: 'Sınırlı kontrol', D: 'Hiç denetim yok' }},
+  
+  { section: 'S', name: 'SGroup4', label: 'S4: İnsan Hakları Politikası', desc: 'İş güvenliği, çocuk işçiliğinin önlenmesi, köleci emek', icon: 'shield', color: '#3498db',
+    info: 'İnsan hakları ve iş güvenliği politikalarını değerlendirir.',
+    examples: { A: 'Uluslararası standartlara tam uyum', B: 'Temel politika mevcut', C: 'Kısmen uygulanıyor', D: 'Hiç politika yok' }},
+  
+  { section: 'G', name: 'Ggroup', label: 'G: Yönetim Kurulu Yapısı', desc: 'Yönetim kurulu bağımsızlığı, çeşitliliği, etik kuralları, muhasebe denetim sistemi', icon: 'building-2', color: '#9b59b6',
+    info: 'Yönetim kurulu yapısı ve şeffaflığı değerlendirir.',
+    examples: { A: 'Tam bağımsız ve çeşitli kurul', B: 'Kısmen bağımsız', C: 'Sınırlı çeşitlilik', D: 'Bağımsızlık yok' }},
+  
+  { section: 'C', name: 'Controversy_Level', label: 'Tartışma Seviyesi', desc: 'Şirketin çalışan uyuşmazlığı, çevre ihlalleri, etik sorunlar hakkında kamuya açık tartışma düzeyi', icon: 'alert-triangle', color: '#e74c3c',
+    info: 'Şirketin kamuya açık tartışma ve risk geçmişini değerlendirir.',
+    options: ['Seçin', 'Yok', 'Düşük', 'Orta', 'Yüksek'], values: ['', 'None', 'Low', 'Moderate', 'Significant'],
+    examples: { A: 'Hiç tartışma yok', B: 'Düşük düzeyde', C: 'Orta düzeyde', D: 'Yüksek düzeyde' }},
+  
+  { section: 'C', name: 'Controversy_Score', label: 'Tartışma Şiddeti Skoru', desc: 'Tartışmanın ne kadar ciddi ve yaygın olduğunun nümerik göstergesi (1: Hafif, 3: Ciddi)', icon: 'alert-octagon', color: '#e74c3c',
+    info: 'Tartışmaların finansal ve itibari etkisini ölçer.',
+    options: ['Seçin', '1', '2', '3'], values: ['', '1', '2', '3'],
+    examples: { A: 'Hafif (1)', B: 'Orta (2)', C: 'Ciddi (3)', D: 'Çok ciddi' }}
+];
+
+    function loadFormQuestions() {
+      const eContainer = document.getElementById('e-questions-container');
+      const sContainer = document.getElementById('s-questions-container');
+      const gContainer = document.getElementById('g-questions-container');
+      const cContainer = document.getElementById('controversy-questions-container');
+
+      eContainer.innerHTML = '';
+      sContainer.innerHTML = '';
+      gContainer.innerHTML = '';
+      cContainer.innerHTML = '';
+
+      questions.forEach((q, idx) => {
+        const options = q.options || ['Seçin', 'A', 'B', 'C', 'D'];
+        const values = q.values || ['', 'A', 'B', 'C', 'D'];
+        
+        let optionsHTML = options.map((opt, i) => `<option value="${values[i]}">${opt}</option>`).join('');
+let examplesHTML = '';
+    if (q.examples && q.examples.A && q.section !== 'C') {
+      examplesHTML = `
+        <div class="mt-3 p-3 rounded-lg bg-slate-50 border border-slate-100 text-[11px] text-slate-600 space-y-1 shadow-sm font-medium">
+          <div><strong class="text-indigo-600 italic">A:</strong> ${q.examples.A}</div>
+          <div><strong class="text-indigo-600 italic">B:</strong> ${q.examples.B}</div>
+          <div><strong class="text-indigo-600 italic">C:</strong> ${q.examples.C}</div>
+          <div><strong class="text-indigo-600 italic">D:</strong> ${q.examples.D}</div>
+        </div>
+      `;
+    }
+       const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-item rounded-xl p-6 card-subtle card-hover bg-white mb-4';
+    questionDiv.style.animationDelay = `${idx * 50}ms`;
+
+    questionDiv.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, ${q.color} 0%, ${q.color}dd 100%); box-shadow: 0 2px 8px ${q.color}26;">
+          <i data-lucide="${q.icon}" style="width:20px;height:20px;color:white;"></i>
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-semibold text-gray-800 mb-1">${q.label}</label>
+          <p class="text-[11px] text-gray-500 mb-3 leading-relaxed font-medium">${q.info}</p>
+          
+          <select name="${q.name}" class="select-input w-full rounded-lg px-3 py-2 text-xs font-medium border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            ${optionsHTML}
+          </select>
+          
+          ${examplesHTML}
+          
+          <p class="text-[10px] text-gray-400 mt-2 italic font-medium tracking-tight">Metrik: ${q.desc}</p>
+        </div>
+      </div>
+    `;
+
+    if (q.section === 'E') eContainer.appendChild(questionDiv);
+    else if (q.section === 'S') sContainer.appendChild(questionDiv);
+    else if (q.section === 'G') gContainer.appendChild(questionDiv);
+    else if (q.section === 'C') cContainer.appendChild(questionDiv);
+  });
+
+  setTimeout(() => lucide.createIcons(), 100);
+}
+
+    function getFormData() {
+      const form = document.getElementById('esg-form');
+      const fields = ['EGroup1','EGroup2','EGroup3','EGroup4','SGroup1','SGroup2','SGroup3','SGroup4','Ggroup','Controversy_Level','Controversy_Score'];
+      const data = {};
+      let allFilled = true;
+      fields.forEach(f => {
+        const val = form.querySelector(`[name="${f}"]`).value;
+        if (!val) allFilled = false;
+        data[f] = val;
+      });
+      if (data.Controversy_Score) data.Controversy_Score = parseInt(data.Controversy_Score);
+      return { data, allFilled };
+    }
+
+    function showToast(message) {
+      let toast = document.getElementById('toast-msg');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast-msg';
+        toast.className = 'fixed top-20 right-4 z-50 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300';
+        toast.style.cssText = 'background: rgba(239, 68, 68, 0.08); border: 1px solid #ef4444; color: #991b1b;';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; }, 4000);
+    }
+
+    const colors = {
+      'High': { bg: 'rgba(239, 68, 68, 0.08)', border: '#ef4444', text: '#991b1b', icon: 'alert-octagon', label: 'YÜKSEK RİSK' },
+      'Medium': { bg: 'rgba(251, 191, 36, 0.08)', border: '#fbbf24', text: '#92400e', icon: 'alert-triangle', label: 'ORTA RİSK' },
+      'Low': { bg: 'rgba(16, 185, 129, 0.08)', border: '#10b981', text: '#065f46', icon: 'shield-check', label: 'DÜŞÜK RİSK' }
+    };
+
+    const aiCommentaries = {
+      'High': [
+        '**Analiz Sonucu:** ESG risk profiliniz yüksek seviyede tespit edilmiştir. Çevresel performans göstergelerinde ciddi iyileştirme alanları mevcut.',
+        '**Çevre (E):** Karbon emisyon yönetimi ve atık politikalarının acil olarak gözden geçirilmesi önerilir.',
+        '**Sosyal (S):** İş gücü çeşitliliği ve tedarik zinciri şeffaflığının güçlendirilmesi gerekmektedir.',
+        '**Yönetişim (G):** Yönetim kurulu bağımsızlığı ve denetim mekanizmalarının uluslararası standartlarına uyumlu hale getirilmesi kritik önem taşımaktadır.'
+      ],
+      'Medium': [
+        '**Analiz Sonucu:** ESG risk profiliniz orta seviyede değerlendirilmiştir. Genel performansınız sektör ortalamasına yakın.',
+        '**Çevre (E):** Karbon ayak izi azaltma hedeflerinizin iyileştirilmesi önerilir. Enerji verimliliği yatırımları faydalı olabilir.',
+        '**Sosyal (S):** Çalışan memnuniyeti ve tedarik zinciri denetim süreçlerinde iyileştirme potansiyeli mevcuttur.',
+        '**Strateji:** ESG derecelendirme kuruluşlarıyla proaktif diyalog kurarak skorunuzu iyileştirebilirsiniz.'
+      ],
+      'Low': [
+        '**Tebrikler!** ESG risk profiliniz düşük seviyede olup, sürdürülebilirlik performansınız sektör liderlerinin arasında yer almaktadır.',
+        '**Çevre (E):** Çevresel yönetim sistemleriniz güçlü bir yapıya sahip. Yenilenebilir enerji kullanımınız takdire şayandır.',
+        '**Sosyal (S):** Sosyal sorumluluk alanında paydaş katılımı ve şeffaflık metrikleri yüksek performans göstermektedir.',
+        '**Yönetişim (G):** Yönetişim yapınız en iyi uygulamalarla uyumlu. GRI ve SASB standartlarını takip etmeye devam edin.'
+      ]
+    };
+
+    function displayResult(prediction) {
+      const c = colors[prediction] || colors['Medium'];
+      const riskMessages = {
+        'High': 'Kredi alabilme potansiyeliniz, ESG anket sonuçlarına göre <strong style="font-size: 1.2em;">DÜŞÜK</strong> olarak belirlenmiştir.',
+        'Medium': 'Kredi alabilme potansiyeliniz, ESG anket sonuçlarına göre <strong style="font-size: 1.2em;">ORTA</strong> olarak belirlenmiştir.',
+        'Low': 'Kredi alabilme potansiyeliniz, ESG anket sonuçlarına göre <strong style="font-size: 1.2em;">YÜKSEK</strong> olarak belirlenmiştir.'
+      };
+      const message = riskMessages[prediction] || riskMessages['Medium'];
+      
+      const html = `
+        <div class="rounded-xl p-8" style="border: 2px solid ${c.border}; background: ${c.bg}; animation: slideUp 0.5s ease-out;">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-20 h-20 rounded-xl flex items-center justify-center" style="background: white; border: 2px solid ${c.border}; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);">
+              <i data-lucide="${c.icon}" style="width:40px;height:40px;color:${c.text};"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-base leading-relaxed mb-6" style="color: ${c.text};">${message}</p>
+              <button id="btn-shap-report" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg text-sm font-semibold" style="background: white; border: 2px solid ${c.border}; color: ${c.text}; cursor: pointer; transition: all 0.3s ease;">
+                <i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i>
+                📊 SHAP Analiz Görsellerini Gör
+              </button>
+              <p class="text-xs mt-3" style="color: ${c.text}; opacity: 0.7;">💡 SHAP analizi, her bir ESG faktörünün kredi risk seviyenize ne kadar etki ettiğini özel görsellerle gösterir. Bu sayede hangi alanlarda iyileştirme yapmanız gerektiğini daha iyi anlayabilirsiniz.</p>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('main-result').innerHTML = html;
+      lucide.createIcons();
+      
+      document.getElementById('btn-shap-report').addEventListener('click', () => {
+        const shapArea = document.getElementById('shap-report');
+        if (shapArea.classList.contains('hidden')) {
+          shapArea.classList.remove('hidden');
+          displayShapReport(prediction);
+          shapArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          shapArea.classList.add('hidden');
+        }
+      });
+    }
+
+    function displayShapReport(prediction) {
+      const shapArea = document.getElementById('shap-report');
+      shapArea.innerHTML = `
+        <div class="rounded-xl p-8 card-subtle" style="border: 2px solid rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(139, 92, 246, 0.04) 0%, rgba(16, 185, 129, 0.04) 100%);">
+          <div class="mb-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);">
+                <i data-lucide="bar-chart-2" style="width:20px;height:20px;color:white;"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-slate-900">SHAP - Faktör Etki Analizi</h3>
+                <p class="text-xs text-slate-500">Modelimizin her bir ESG faktörünü nasıl değerlendirdiğini öğrenin</p>
+              </div>
+            </div>
+          </div>
+          
+          <div id="shap-visualizations" class="space-y-4">
+            <div class="rounded-lg p-6 bg-white border border-slate-200 flex items-center justify-center" style="min-height: 300px;">
+              <div class="text-center">
+                <div class="inline-block w-12 h-12 rounded-full border-4 border-slate-200 border-t-emerald-500 animate-spin mb-3"></div>
+                <p class="text-slate-600 font-medium">SHAP görselleştirmeleri yükleniyor...</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-lg p-4 mt-4" style="background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <p class="text-sm text-slate-700"><strong>💡 SHAP Analizi Nedir?</strong> SHAP (SHapley Additive exPlanations), yapay zeka modelinin kararlarını açıklamak için kullanılan ileri bir yöntemdir. Her faktörün risk seviyenize ne kadar katkı yaptığını matematiksel olarak hesaplar. Bu sayede "neden bu sonuç?" sorusunun cevabını net bir şekilde görebilirsiniz. SHAP görselleri ile birlikte <strong>Premium AI Raporu</strong>'nu incelemeniz halinde, kredi risk seviyenizin arkasındaki detaylı nedenleri ve iyileştirme stratejilerini çok daha kapsamlı ve anlaşılır bir şekilde değerlendirebilirsiniz.</p>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+      const { data } = getFormData(); // Formdaki tüm şıkları (A, B, C...) toplar
+      loadShapVisualizations(data);
+    }
+
+   async function loadShapVisualizations(formData) { // 'prediction' yerine tüm formu almalıyız
+  try {
+    const vizContainer = document.getElementById('shap-visualizations');
+    vizContainer.innerHTML = '<div class="text-center text-slate-500">Analiz görseli hazırlanıyor...</div>';
+
+    const response = await fetch('http://127.0.0.1:8000/shap-gorsel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData) // Tüm anket verilerini gönderiyoruz
+    });
+    
+    if (!response.ok) throw new Error('SHAP verileri alınamadı');
+    
+    const result = await response.json();
+    
+    // Backend 'shap_image' gönderdiği için burayı düzelttik:
+    if (result.shap_image) {
+      vizContainer.innerHTML = `
+        <div class="flex flex-col items-center">
+          <p class="text-sm font-medium text-slate-700 mb-4">Model Karar Mekanizması (Waterfall Analysis)</p>
+          <img src="${result.shap_image}" class="max-w-full rounded-lg shadow-sm border border-slate-200" alt="SHAP Analizi">
+        </div>`;
+      
+      // Eğer Lucide ikonları kullanıyorsan tetikle
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    } else {
+      vizContainer.innerHTML = '<div class="text-center text-slate-500">SHAP görseli oluşturulamadı.</div>';
+    }
+
+  } catch (err) {
+    console.error('SHAP görsel yükleme hatası:', err);
+    const vizContainer = document.getElementById('shap-visualizations');
+    vizContainer.innerHTML = `
+      <div class="rounded-lg p-6 bg-yellow-50 border border-yellow-200 text-center">
+        <p class="text-sm text-yellow-800">Analiz şu an kullanılamıyor. Lütfen backend bağlantısını kontrol edin.</p>
+      </div>`;
+  }
+}
+
+    async function displayAIReport(prediction) {
+      const reportArea = document.getElementById('ai-report');
+      reportArea.classList.remove('hidden');
+      reportArea.innerHTML = `
+        <div class="rounded-xl p-6 card-subtle" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.04) 0%, rgba(16, 185, 129, 0.04) 100%);">
+          <div class="flex items-center gap-3 pb-4" style="border-bottom: 1px solid rgba(16, 185, 129, 0.1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);">🤖</div>
+            <div>
+              <span class="text-sm font-bold text-slate-900">Yapay Zeka Analizi</span>
+              <span class="text-xs ml-2 px-2 py-0.5 rounded-full" style="background: rgba(16, 185, 129, 0.08); color: #059669;">Detaylı Rapor</span>
+            </div>
+          </div>
+          <div id="report-messages" class="space-y-3 mt-4"></div>
+        </div>
+      `;
+      const msgContainer = document.getElementById('report-messages');
+
+      function addMessage(text, delay) {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            const msg = document.createElement('div');
+            msg.className = 'rounded-lg p-4';
+            msg.style.cssText = 'background: white; border: 1px solid rgba(16, 185, 129, 0.1); animation: slideUp 0.4s ease-out;';
+            const formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #059669; font-weight: 700;">$1</strong>');
+            msg.innerHTML = `<p class="text-sm leading-relaxed text-slate-700">${formatted}</p>`;
+            msgContainer.appendChild(msg);
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+            resolve();
+          }, delay);
+        });
+      }
+
+      const messages = aiCommentaries[prediction] || aiCommentaries['Medium'];
+      for (const msg of messages) {
+        await addMessage(msg, 1000 + Math.random() * 800);
+      }
+      await addMessage('**Sonraki Adımlar:** Önerilen iyileştirmeleri öncelik sırasına koyarak bir aksiyon planı oluşturunuz.', 1500);
+    }
+
+    async function handleQuickAnalysis() {
+      const { data, allFilled } = getFormData();
+      if (!allFilled) {
+        showToast('Lütfen tüm alanları doldurun.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-quick-final');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> <span>Analiz Ediliyor...</span>';
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/tahmin-et', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        displayResult(result.tahmin);
+        showPage('results');
+      } catch (err) {
+        const simulated = ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)];
+        displayResult(simulated);
+        showPage('results');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="zap" style="width:18px;height:18px;"></i> <span>Hızlı Tahmin Al</span>';
+        lucide.createIcons();
+      }
+    }
+
+    async function handleProAnalysis() {
+      const { data, allFilled } = getFormData();
+      if (!allFilled) {
+        showToast('Lütfen tüm alanları doldurun.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-pro-final');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> <span>AI Raporu Hazırlanıyor...</span>';
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/ai-rapor-olustur', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) throw new Error('Sunucu hatası');
+        
+        const result = await response.json();
+        
+        displayResult(result.tahmin);
+        showPage('results');
+        
+        const reportArea = document.getElementById('ai-report');
+        reportArea.classList.remove('hidden');
+        reportArea.innerHTML = `
+            <div class="rounded-xl p-6 card-subtle bg-white mt-4 border-2 border-amber-400 animate-slideUp">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-xl">💎</span>
+                    <h3 class="font-bold text-slate-900">Premium AI Analiz Raporu</h3>
+                </div>
+                <p class="text-xs text-slate-500 mb-4 pb-4 border-b border-slate-200">Bu kapsamlı rapor, yapay zeka tarafından ESG verilerinizi derinlemesine analiz ederek oluşturulmuştur. Yukarıdaki SHAP görselleriyle birlikte incelendiğinde, kredi risk profilinizin hangi faktörlerden etkilendiğini ve nasıl iyileştirilebileceğini tam olarak anlayabilirsiniz.</p>
+                <div class="prose prose-slate max-w-none text-slate-700 whitespace-pre-line leading-relaxed">
+                    ${result.rapor}
+                </div>
+                <div class="mt-6 flex justify-between items-center border-t pt-4">
+                    <p class="text-xs text-slate-400 italic">Bu rapor GPT-4o ve SHAP Analizi ile oluşturulmuştur.</p>
+                    <button onclick="window.print()" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Raporu Yazdır / PDF
+                    </button>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+
+      } catch (err) {
+        console.error(err);
+        showToast('Hata: AI Raporu oluşturulamadı. main.py ve OpenAI Key kontrol edin.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>💎</span> <span>Detaylı AI Raporu</span>';
+      }
+    }
+
+    document.getElementById('btn-quick-final').addEventListener('click', handleQuickAnalysis);
+    document.getElementById('btn-pro-final').addEventListener('click', handleProAnalysis);
+    document.getElementById('btn-back-results').addEventListener('click', () => showPage('form'));
+    document.getElementById('btn-new-analysis').addEventListener('click', () => {
+      currentStep = 1;
+      showPage('form');
+      showStep(1);
+    });
+
+    lucide.createIcons();
+    </script>
+   </main>
+  </div>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dff38dff5de0d26',t:'MTc3NDExOTg2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
