@@ -9,3 +9,6 @@ UI for ESG credit risk prediction system.
 
 ## Tech Stack
 - React / HTML / JS
+
+## Backend API
+https://github.com/seymakenar/esg-credit-risk-ai-backend
